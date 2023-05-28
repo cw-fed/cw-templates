@@ -17,79 +17,16 @@ const defaultTargetDir = 'cw-vite-app'
 
 const argv = minimist(process.argv.slice(2), { string: ['_'] })
 
-const FRAMEWORKS: Framework[] = [
-  {
-    name: 'vue',
-    display: 'Vue',
-    color: yellow,
-    variants: [
-      {
-        name: 'vue',
-        display: 'Vue',
-        color: blue
-      }
-    ]
-  }
-]
-
-const promptsCommand:Array<prompts.PromptObject<any>> = [
-  {
-    name: 'projectName',
-    type: 'text',
-    message: reset('Project name:'),
-    initial: defaultTargetDir,
-    onState: (state) => {
-      state.value = formatTargetDir(state.value) || defaultTargetDir
-    }
-  },
-  {
-    name: 'packageName',
-    type: () => (isValidPackageName(getProjectName())) ? null : 'text',
-    message: reset('Package name:'),
-    initial: () => '',
-    validate: (dir) => isValidPackageName(dir) || 'Invalid package name.'
-  },
-  {
-    name: 'framework',
-    type: argTemplate ? null : 'select',
-    message: typeof argTemplate === 'string',
-    initial: 0,
-    choices: FRAMEWORKS.map(frame => {
-      const frameWorkColor = frame.color
-      return {
-        title: frameWorkColor(frame.display),
-        value: frame
-      }
-    })
-  },
-  {
-    name: 'variants',
-    message: reset('Select a variant'),
-    choices: (framework: Framework) => {
-      
-    }
-  }
-]
-
-function isValidPackageName(name: string) {
-  return name.test(/vite-/)
-}
-
-function getProjectName() {
-
-}
-
-function onPromptCancel() {
-  throw new Error(red('x') + ' operation cancelled.')
-}
+const FRAMEWORKS: Framework[] = makeFrameworks()
 
 const templates = FRAMEWORKS.map(f => f.variants && f.variants.map(v=> v.name || f.name))
-  .reduce((a, b) => a.concat(b), [])
 
 async function init() {
   const argTargetDir = formatTargetDir(argv._[0])
   const argTemplate = argv.template || argv.t
   const targetDir = argTargetDir || defaultTargetDir
+
+  const promptsCommand = makePromptsCommand()
 
   let result: prompts.Answers<'framework' | 'projectName' | 'variants'>
   try {
@@ -132,6 +69,49 @@ async function init() {
 
     write('package.json', JSON.stringify(pkg, null, 2))
   }
+
+  function onPromptCancel() {
+    throw new Error(red('x') + ' operation cancelled.')
+  }
+
+  function makePromptsCommand(): Array<prompts.PromptObject<any>> {
+    return [
+      {
+        name: 'projectName',
+        type: 'text',
+        message: reset('Project name:'),
+        initial: defaultTargetDir,
+        onState: (state) => {
+          state.value = formatTargetDir(state.value) || defaultTargetDir
+        }
+      },
+      {
+        name: 'packageName',
+        type: () => (isValidPackageName(getProjectName())) ? null : 'text',
+        message: reset('Package name:'),
+        initial: () => '',
+        validate: (dir) => isValidPackageName(dir) || 'Invalid package name.'
+      },
+      {
+        name: 'framework',
+        type: argTemplate ? null : 'select',
+        message: reset('Select a framework'),
+        initial: 0,
+        choices: FRAMEWORKS.map(frame => {
+          const frameWorkColor = frame.color
+          return {
+            title: frameWorkColor(frame.display),
+            value: frame
+          }
+        })
+      },
+      {
+        name: 'variants',
+        message: reset('Select a variant'),
+        type: () => 'text',
+      }
+    ]
+  }
 }
 
 function filesExcludePkgJson(files: string[]) {
@@ -166,6 +146,31 @@ function copyDir(src: string, dest: string) {
     const destFile = path.join(dest, file)
     copy(srcFile, destFile)
   })
+}
+
+function makeFrameworks(): Framework[] {
+  return [
+    {
+      name: 'vue',
+      display: 'Vue',
+      color: yellow,
+      variants: [
+        {
+          name: 'vue',
+          display: 'Vue',
+          color: blue
+        }
+      ]
+    }
+  ]
+}
+
+function isValidPackageName(name: string) {
+  return /test-/.test(name)
+}
+
+function getProjectName(): string {
+  return path.basename(cwd)
 }
 
 // bootstrap

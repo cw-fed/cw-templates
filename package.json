@@ -3,10 +3,22 @@
   "version": "1.0.0",
   "description": "cwfef templates",
   "type": "module",
-  "main": "dist/index.js",
+  "main": "dist/index.cjs",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "files": [
+    "dist"
+  ],
   "scripts": {
+    "dev": "unbuild --stub",
     "build": "unbuild",
-    "type": "tsc"
+    "typecheck": "tsc --noEmits",
+    "prepublishOnly": "npm run build"
   },
   "repository": {
     "type": "git",
