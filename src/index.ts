@@ -6,7 +6,6 @@ import prompts from 'prompts'
 import {
   yellow,
   blue,
-  green,
   reset,
   red,
 } from 'kolorist'
@@ -54,9 +53,10 @@ const templates = FRAMEWORKS.map(f => f.variants && f.variants.map(v=> v.name ||
 
 async function init() {
   const argTargetDir = formatTargetDir(argv._[0])
+  const argTemplate = argv.template || argv.t
   const targetDir = argTargetDir || defaultTargetDir
 
-  let result: prompts.Answers<string>
+  let result: prompts.Answers<'framework' | 'projectName' | 'variant' | ''>
   try {
     result = await prompts(promptsCommand, { onCancel: onPromptCancel})
   } catch (error: any) {
@@ -69,6 +69,8 @@ async function init() {
   const root = path.join(cwd, targetDir)
 }
 
+function handleArgv() {}
+
 function formatTargetDir(src: string | undefined) {
   return src?.trim().replace(/^\/|\/$/g, '')
 }
@@ -77,7 +79,9 @@ function isEmpty(src: string) {
   return fs.readdirSync(src).length === 0
 }
 
-function write(file: string, content?: string) {}
+function write(file: string, content?: string) {
+
+}
 
 function handleCommand() {}
 
@@ -99,3 +103,8 @@ function copyDir(src: string, dest: string) {
     copy(srcFile, destFile)
   })
 }
+
+// bootstrap
+init().catch(err => {
+  console.error(err)
+})
