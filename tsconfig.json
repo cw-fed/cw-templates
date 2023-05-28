@@ -3,12 +3,14 @@
     "baseUrl": ".",
     "module": "ESNext",
     "target": "ESNext",
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "strict": true,
     "outDir": "dist",
-    "paths": {
-      "src/*": ["src/*"]
-    },
+    "skipLibCheck": true,
+    "declaration": false,
+    "sourceMap": false,
+    "noUnusedLocals": true,
+    "esModuleInterop": true
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules", "**/*.spec.ts"]

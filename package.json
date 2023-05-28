@@ -1,8 +1,9 @@
 {
   "name": "cw-templates",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "cwfef templates",
+  "type": "module",
+  "main": "dist/index.js",
   "scripts": {
     "build": "tsc"
   },
@@ -10,18 +11,28 @@
     "type": "git",
     "url": "git+https://github.com/cw-fed/cw-templates.git"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "keywords": [
+    "cwfef", "templates"
+  ],
+  "author": "weishijiestein@outlook.com",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/cw-fed/cw-templates/issues"
   },
   "homepage": "https://github.com/cw-fed/cw-templates#readme",
   "devDependencies": {
+    "@types/minimist": "^1.2.2",
     "@types/node": "^20.2.5",
+    "@types/prompts": "^2.4.4",
     "cross-spawn": "^7.0.3",
     "kolorist": "^1.8.0",
     "minimist": "^1.2.8",
     "prompts": "^2.4.2"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "volta": {
+    "node": "16.20.0"
   }
 }
