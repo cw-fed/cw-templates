@@ -10,6 +10,7 @@ import {
 } from 'kolorist'
 
 const cwd = process.cwd()
+// 处理识别不了的文件
 const renameFiles = {
   '_gitignore': '.gitignore',
 } as any
