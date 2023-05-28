@@ -5,14 +5,16 @@
   "type": "module",
   "main": "dist/index.js",
   "scripts": {
-    "build": "tsc"
+    "build": "unbuild",
+    "type": "tsc"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/cw-fed/cw-templates.git"
   },
   "keywords": [
-    "cwfef", "templates"
+    "cwfef",
+    "templates"
   ],
   "author": "weishijiestein@outlook.com",
   "license": "MIT",
@@ -27,7 +29,8 @@
     "cross-spawn": "^7.0.3",
     "kolorist": "^1.8.0",
     "minimist": "^1.2.8",
-    "prompts": "^2.4.2"
+    "prompts": "^2.4.2",
+    "unbuild": "^1.2.1"
   },
   "engines": {
     "node": ">=16.0.0"

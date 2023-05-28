@@ -1,6 +1,5 @@
 import fs from 'node:fs'
 import path from 'node:path'
-import { fileURLToPath } from 'node:url'
 import minimist from 'minimist'
 import prompts from 'prompts'
 import {
@@ -13,7 +12,7 @@ import {
 const cwd = process.cwd()
 const renameFiles = {
   '_gitignore': '.gitignore',
-}
+} as any
 const defaultTargetDir = 'cw-vite-app'
 
 const argv = minimist(process.argv.slice(2), { string: ['_'] })
@@ -42,21 +41,57 @@ const promptsCommand:Array<prompts.PromptObject<any>> = [
     onState: (state) => {
       state.value = formatTargetDir(state.value) || defaultTargetDir
     }
+  },
+  {
+    name: 'packageName',
+    type: () => (isValidPackageName(getProjectName())) ? null : 'text',
+    message: reset('Package name:'),
+    initial: () => '',
+    validate: (dir) => isValidPackageName(dir) || 'Invalid package name.'
+  },
+  {
+    name: 'framework',
+    type: argTemplate ? null : 'select',
+    message: typeof argTemplate === 'string',
+    initial: 0,
+    choices: FRAMEWORKS.map(frame => {
+      const frameWorkColor = frame.color
+      return {
+        title: frameWorkColor(frame.display),
+        value: frame
+      }
+    })
+  },
+  {
+    name: 'variants',
+    message: reset('Select a variant'),
+    choices: (framework: Framework) => {
+      
+    }
   }
 ]
+
+function isValidPackageName(name: string) {
+  return name.test(/vite-/)
+}
+
+function getProjectName() {
+
+}
 
 function onPromptCancel() {
   throw new Error(red('x') + ' operation cancelled.')
 }
 
-const templates = FRAMEWORKS.map(f => f.variants && f.variants.map(v=> v.name || f.name)).reduce((a, b) => a.concat(b), [])
+const templates = FRAMEWORKS.map(f => f.variants && f.variants.map(v=> v.name || f.name))
+  .reduce((a, b) => a.concat(b), [])
 
 async function init() {
   const argTargetDir = formatTargetDir(argv._[0])
   const argTemplate = argv.template || argv.t
   const targetDir = argTargetDir || defaultTargetDir
 
-  let result: prompts.Answers<'framework' | 'projectName' | 'variant' | ''>
+  let result: prompts.Answers<'framework' | 'projectName' | 'variants'>
   try {
     result = await prompts(promptsCommand, { onCancel: onPromptCancel})
   } catch (error: any) {
@@ -67,9 +102,41 @@ async function init() {
   const { framework } = result
 
   const root = path.join(cwd, targetDir)
+
+  const templateDir = path.resolve(import.meta.url, '../..', `template-${framework}`)
+  const files = fs.readdirSync(templateDir)
+  const filesToCreate = filesExcludePkgJson(files)
+  for (const file of filesToCreate) {
+    write(file)
+  }
+
+  writePkg()
+  
+  function write(file: string, content?: string) {
+    const targetPath = path.join(root, renameFiles[file] ?? file)
+    if (content) {
+      fs.writeFileSync(targetPath, content)
+    } else {
+      copy(path.join(templateDir, file), targetPath)
+    }
+  }
+
+  function getPkg() {
+    return fs.readFileSync(path.join(templateDir, 'package.json'), 'utf-8')
+  }
+
+  function writePkg() {
+    const pkg = JSON.parse(getPkg())
+
+    pkg.name = result.projectName || targetDir
+
+    write('package.json', JSON.stringify(pkg, null, 2))
+  }
 }
 
-function handleArgv() {}
+function filesExcludePkgJson(files: string[]) {
+  return files.filter(file => file !== 'package.json')
+}
 
 function formatTargetDir(src: string | undefined) {
   return src?.trim().replace(/^\/|\/$/g, '')
@@ -79,9 +146,6 @@ function isEmpty(src: string) {
   return fs.readdirSync(src).length === 0
 }
 
-function write(file: string, content?: string) {
-
-}
 
 function handleCommand() {}
 
