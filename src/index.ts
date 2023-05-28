@@ -126,9 +126,6 @@ function isEmpty(src: string) {
   return fs.readdirSync(src).length === 0
 }
 
-
-function handleCommand() {}
-
 function copy(src: string, dest: string) {
   const stat = fs.statSync(src)
   if (stat.isDirectory()) {
