@@ -7,7 +7,7 @@ module.exports = defineConfig({
         'eslint:recommended',
         'plugin:@typescript-eslint/recommended',
     ],
-    ignorePatterns: ['template-**'],
+    ignorePatterns: ['template-**', '*-template'],
     plugins: ['import'],
     parser: '@typescript-eslint/parser',
     parserOptions: {

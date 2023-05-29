@@ -1,2 +1,7 @@
 node_modules/
+
+# bundles
+dist/
+
+# lockfiles
 pnpm-lock.yaml

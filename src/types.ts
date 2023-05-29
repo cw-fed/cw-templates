@@ -1,13 +1,13 @@
-type ColorFunc = (str: string | number) => string
+export type ColorFunc = (str: string | number) => string
 
-type Framework = {
+export type Framework = {
   name: string,
   display: string,
   color: ColorFunc,
   variants?: FrameVarianats[],
 }
 
-type FrameVarianats = {
+export type FrameVarianats = {
   name: string,
   display: string,
   color: ColorFunc,

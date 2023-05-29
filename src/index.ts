@@ -7,25 +7,31 @@ import {
   blue,
   reset,
   red,
+  cyan,
+  lightBlue,
 } from 'kolorist'
+import * as R from 'ramda'
+
+import { Framework } from './types'
 
 const cwd = process.cwd()
 // 处理识别不了的文件
 const renameFiles = {
   '_gitignore': '.gitignore',
 } as any
-const defaultTargetDir = 'cw-vite-app'
+
+const defaultTargetDir = 'cwfef-next-app'
 
 const argv = minimist(process.argv.slice(2), { string: ['_'] })
 
 const FRAMEWORKS: Framework[] = makeFrameworks()
 
-const templates = FRAMEWORKS.map(f => f.variants && f.variants.map(v=> v.name || f.name))
+const templates = R.map(f => R.is(Array, f.variants) && R.map(v=>v.name || f.name, f.variants), FRAMEWORKS)
 
 async function init() {
-  const argTargetDir = formatTargetDir(argv._[0])
-  const argTemplate = argv.template || argv.t
-  const targetDir = argTargetDir || defaultTargetDir
+  // const argTargetDir = formatTargetDir(argv._[0])
+  const argTemplate = R.or(argv.template, argv.t)
+  const targetDir = R.or(argTemplate, templates)
 
   const promptsCommand = makePromptsCommand()
 
@@ -41,7 +47,7 @@ async function init() {
 
   const root = path.join(cwd, targetDir)
 
-  const templateDir = path.resolve(import.meta.url, '../..', `template-${framework}`)
+  const templateDir = path.resolve(import.meta.url, '../..', `${framework}-template`)
   const files = fs.readdirSync(templateDir)
   const filesToCreate = filesExcludePkgJson(files)
   for (const file of filesToCreate) {
@@ -123,9 +129,9 @@ function formatTargetDir(src: string | undefined) {
   return src?.trim().replace(/^\/|\/$/g, '')
 }
 
-function isEmpty(src: string) {
-  return fs.readdirSync(src).length === 0
-}
+// function isDirEmpty(src: string) {
+//   return fs.readdirSync(src).length === 0
+// }
 
 function copy(src: string, dest: string) {
   const stat = fs.statSync(src)
@@ -157,6 +163,23 @@ function makeFrameworks(): Framework[] {
           name: 'vue',
           display: 'Vue',
           color: blue
+        }
+      ]
+    },
+    {
+      name: 'react',
+      display: 'React',
+      color: yellow,
+      variants: [
+        {
+          name: 'next',
+          display: 'Next',
+          color: cyan,
+        },
+        {
+          name: 'react',
+          display: 'React',
+          color: lightBlue,
         }
       ]
     }
