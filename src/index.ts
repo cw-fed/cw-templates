@@ -21,13 +21,16 @@ const renameFiles = {
   '_gitignore': '.gitignore',
 } as any
 
-const defaultTargetDir = 'cwfef-next-app'
+const defaultTargetDir = 'cwfef-vue-app'
 
 const argv = minimist(process.argv.slice(2), { string: ['_'] })
 
 const FRAMEWORKS: Framework[] = makeFrameworks()
 
-const templates = R.flatten(R.map(f => f.variants && R.map(v=>v.name || f.name, f.variants), FRAMEWORKS))
+const getFrameName = (): unknown[] => R.map(f => f.variants && R.map(v=>v.name || f.name, f.variants), FRAMEWORKS)
+const getFrameNameFlatten = (names: unknown[]) => R.flatten(names)
+const makeTemplates = R.compose(getFrameNameFlatten, getFrameName)
+const templates = makeTemplates()
 
 async function init() {
   const argTargetDir = formatTargetDir(argv._[0])
@@ -39,18 +42,19 @@ async function init() {
   let result: prompts.Answers<'framework' | 'packageName' | 'variant'>
   try {
     result = await prompts(promptsCommand, { onCancel: onPromptCancel})
-  } catch (error: any) {
-   console.error(error.message) 
-   return
+  } catch (e) {
+    const error = e as Error
+    console.error(error.message) 
+    return
   }
 
   const { framework, packageName, variant } = result
-
   const root = path.join(cwd, targetDir)
-
   const template = variant || framework?.name || argTemplate
-
   const templateDir = path.resolve(fileURLToPath(import.meta.url), '../..', `template-${template}`)
+
+  console.log(222, templateDir)
+
   const files = fs.readdirSync(templateDir)
   const filesToCreate = filesExcludePkgJson(files)
   for (const file of filesToCreate) {
@@ -59,9 +63,7 @@ async function init() {
 
   const writePkg = () => {
     const pkg = JSON.parse(getPkg())
-
     pkg.name = packageName || targetDir
-
     write('package.json', JSON.stringify(pkg, null, 2))
   }
 

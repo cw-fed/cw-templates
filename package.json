@@ -16,7 +16,7 @@
     "dev": "unbuild --stub",
     "build": "unbuild",
     "typecheck": "tsc --noEmits",
-    "prepublishOnly": "npm run build"
+    "prepublishOnly": "npm run build && np --no-cleans --anybranch --yolo"
   },
   "repository": {
     "type": "git",
