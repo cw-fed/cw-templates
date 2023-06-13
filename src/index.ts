@@ -19,6 +19,7 @@ const cwd = process.cwd()
 // 处理识别不了的文件
 const renameFiles = {
   '_gitignore': '.gitignore',
+  '_eslintrc': '.eslintrc',
 } as any
 
 const defaultTargetDir = 'cwfef-vue-app'
@@ -35,7 +36,7 @@ const templates = makeTemplates()
 async function init() {
   const argTargetDir = formatTargetDir(argv._[0])
   const argTemplate = R.or(argv.template, argv.t)
-  const targetDir = R.or(argTargetDir, defaultTargetDir)
+  let targetDir = R.or(argTargetDir, defaultTargetDir)
 
   const promptsCommand = makePromptsCommand()
 
@@ -53,10 +54,15 @@ async function init() {
   const template = variant || framework?.name || argTemplate
   const templateDir = path.resolve(fileURLToPath(import.meta.url), '../..', `template-${template}`)
 
-  console.log(222, templateDir)
+  // 如果没有文件夹，则创建一个
+  if (!fs.existsSync(targetDir)) {
+    fs.mkdirSync(targetDir)
+  }
 
   const files = fs.readdirSync(templateDir)
   const filesToCreate = filesExcludePkgJson(files)
+
+  // 递归写入文件
   for (const file of filesToCreate) {
     write(file)
   }
@@ -113,7 +119,7 @@ async function init() {
         message: reset('Project name:'),
         initial: defaultTargetDir,
         onState: (state) => {
-          state.value = formatTargetDir(state.value) || defaultTargetDir
+          targetDir = formatTargetDir(state.value) || defaultTargetDir
         }
       },
       {
@@ -142,7 +148,7 @@ async function init() {
         })
       },
       {
-        name: 'variants',
+        name: 'variant',
         message: reset('Select a variant'),
         type: (framework: Framework) => framework && framework.variants? 'select' : null,
         choices: (framework: Framework) => framework.variants?.map(variant => {
@@ -220,7 +226,7 @@ function makeFrameworks(): Framework[] {
 }
 
 function isValidPackageName(name: string) {
-  return /test-/.test(name)
+  return /cw-activity-/.test(name)
 }
 
 function getProjectName(targetDir: string): string {
