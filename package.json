@@ -1,6 +1,6 @@
 {
   "name": "cw-templates",
-  "version": "1.0.0",
+  "version": "0.0.20",
   "description": "cwfef templates",
   "bin": {
     "create-cwfef": "index.js",
